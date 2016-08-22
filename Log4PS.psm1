@@ -3,6 +3,11 @@ param ()
 $script:ModuleParams = $args
 #endregion
 
+[System.Reflection.Assembly]::LoadFile("C:\Program Files\WindowsPowerShell\Modules\log4ps\lib\log4net.2.0.5\lib\net45-full\log4net.dll");
+
+if ($ModuleParams[0] -eq "default") {
+    $ModuleParams[0] = "$PSScriptRoot\Log4PS.psm1.config.xml"
+}
 
 $script:CommandLevelMap = @{'Write-Host'='info';'Write-Debug'='debug';'write-Verbose'='info';'Write-Warning'='warn';'Write-Error'='error'}
 
@@ -193,7 +198,7 @@ function Write-Log {
   $loggerName,
   [Parameter(Mandatory = $true,ValueFromPipelineByPropertyName = $true,ValueFromPipeline = $true)]
   $message,
-  [ValidateSet('debug','info','warn','error','fatal')]
+  [ValidateSet('debug','info','verbose','warn','error','fatal')]
   $logLevel = 'info',
   [hashtable]
   $properties = @{}
@@ -222,6 +227,7 @@ function Write-Log {
    $loggerName = 'CLI'
    $ScriptLineNumber = 'console'
   }
+  if ($loggerName -eq $null) { $loggerName = "Default" }
   $logger = Get-Logger -name $loggerName
   if ($logger."is$($Loglevel)Enabled")
   {
